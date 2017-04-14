@@ -221,12 +221,19 @@ export class GraphQLSchema {
 
 type TypeMap = { [typeName: string]: GraphQLNamedType };
 
-type GraphQLSchemaConfig = {
-  query: GraphQLObjectType;
+type GraphQLSchemaConfigBase = {
   mutation?: ?GraphQLObjectType;
   subscription?: ?GraphQLObjectType;
   types?: ?Array<GraphQLNamedType>;
   directives?: ?Array<GraphQLDirective>;
+};
+
+type GraphQLSchemaConfig = GraphQLSchemaConfigBase & {
+  query: GraphQLObjectType;
+};
+
+export type GraphQLSchemaComponents = GraphQLSchemaConfigBase & {
+  query?: ?GraphQLObjectType;
 };
 
 function typeMapReducer(map: TypeMap, type: ?GraphQLType): TypeMap {
