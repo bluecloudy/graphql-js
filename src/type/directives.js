@@ -16,6 +16,7 @@ import type {
 import { GraphQLString, GraphQLBoolean } from './scalars';
 import invariant from '../jsutils/invariant';
 import { assertValidName } from '../utilities/assertValidName';
+import type { DirectiveDefinitionNode } from '../language/ast';
 
 
 export const DirectiveLocation = {
@@ -52,6 +53,7 @@ export class GraphQLDirective {
   description: ?string;
   locations: Array<DirectiveLocationEnum>;
   args: Array<GraphQLArgument>;
+  astNode: ?DirectiveDefinitionNode;
 
   constructor(config: GraphQLDirectiveConfig): void {
     invariant(config.name, 'Directive must be named.');
@@ -84,10 +86,13 @@ export class GraphQLDirective {
           name: argName,
           description: arg.description === undefined ? null : arg.description,
           type: arg.type,
-          defaultValue: arg.defaultValue
+          defaultValue: arg.defaultValue,
+          astNode: arg.astNode || null,
         };
       });
     }
+
+    this.astNode = config.astNode || null;
   }
 }
 
@@ -96,6 +101,7 @@ type GraphQLDirectiveConfig = {
   description?: ?string;
   locations: Array<DirectiveLocationEnum>;
   args?: ?GraphQLFieldConfigArgumentMap;
+  astNode?: ?DirectiveDefinitionNode;
 };
 
 /**
