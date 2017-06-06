@@ -272,6 +272,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
       null,
     types,
     directives,
+    astNode: schemaDef,
   });
 
   function getDirective(
@@ -284,6 +285,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
         node => ((node.value: any): DirectiveLocationEnum)
       ),
       args: directiveNode.arguments && makeInputValues(directiveNode.arguments),
+      astNode: directiveNode,
     });
   }
 
@@ -368,6 +370,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
       description: getDescription(def),
       fields: () => makeFieldDefMap(def),
       interfaces: () => makeImplementedInterfaces(def),
+      astNode: def,
     });
   }
 
@@ -381,7 +384,8 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
         type: produceOutputType(field.type),
         description: getDescription(field),
         args: makeInputValues(field.arguments),
-        deprecationReason: getDeprecationReason(field.directives)
+        deprecationReason: getDeprecationReason(field.directives),
+        astNode: field,
       })
     );
   }
@@ -400,7 +404,8 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
         return {
           type,
           description: getDescription(value),
-          defaultValue: valueFromAST(value.defaultValue, type)
+          defaultValue: valueFromAST(value.defaultValue, type),
+          astNode: value,
         };
       }
     );
@@ -412,6 +417,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
       name: typeName,
       description: getDescription(def),
       fields: () => makeFieldDefMap(def),
+      astNode: def,
       resolveType: cannotExecuteSchema,
     });
   }
@@ -425,9 +431,11 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
         enumValue => enumValue.name.value,
         enumValue => ({
           description: getDescription(enumValue),
-          deprecationReason: getDeprecationReason(enumValue.directives)
+          deprecationReason: getDeprecationReason(enumValue.directives),
+          astNode: enumValue
         })
       ),
+      astNode: def,
     });
 
     return enumType;
@@ -439,6 +447,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
       description: getDescription(def),
       types: def.types.map(t => produceObjectType(t)),
       resolveType: cannotExecuteSchema,
+      astNode: def,
     });
   }
 
@@ -446,6 +455,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
     return new GraphQLScalarType({
       name: def.name.value,
       description: getDescription(def),
+      astNode: def,
       serialize: () => null,
       // Note: validation calls the parse functions to determine if a
       // literal value is correct. Returning null would cause use of custom
@@ -461,6 +471,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
       name: def.name.value,
       description: getDescription(def),
       fields: () => makeInputValues(def.fields),
+      astNode: def,
     });
   }
 }
